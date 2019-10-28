@@ -22,6 +22,7 @@ def can_it_float(value):
     else:
         return True
 
+# Encodes a column where "Yes" = 1 and "No" = 0
 def yes_no_encoder(telco_column):
     return telco_column.map({'Yes': 1, 'No': 0})
 
@@ -33,16 +34,21 @@ def yes_no_none(value):
     else:
         return 0
 
+# Encodes a column where "Yes" = 2, "No" = 1, and anything else is 0
 def yes_no_none_encoder(telco_column):
     return telco_column.map(yes_no_none)
 
+# if a value can be cast to float, returns that value, otherwise returns 0
+def cant_float_to_zero(value):
+    if can_it_float(value):
+        return value
+    else:
+        return 0
 
 def prep_telco(telco_df):
-    # Finds all total_charges which cannot be cast to float
-    invalid_totals = ~telco.total_charges.apply(can_it_float)
-
+    # Looked up non-floatable values in total_charges
     # After investigating those, I found they all had a tenure of 0, so I figured making total_charges = 0 made sense
-    telco[invalid_totals] = 0
+    telco.total_charges = telco.total_charges.map(cant_float_to_zero)
 
     telco['total_charges'] = telco['total_charges'].astype('float')
 
@@ -100,6 +106,11 @@ def prep_telco(telco_df):
     yes_no_other_cols = ['lines', 'security', 'backup', 'protection', 'support', 'tv', 'movies']
     for i in yes_no_other_cols:
         telco[i] = yes_no_none_encoder(telco[i])
+
+    multiple_lines = telco.lines == 2
+    telco[multiple_lines].phone = 2
+    telco.drop(columns='lines', inplace=True)
+    data_dict['phone'] = {0: 'no phone', 1: 'one line', 2: 'multiple lines'}
 
     y = telco[['churn']]
     X = telco.drop(columns='churn')
