@@ -107,10 +107,16 @@ def prep_telco(telco_df):
     for i in yes_no_other_cols:
         telco[i] = yes_no_none_encoder(telco[i])
 
-    multiple_lines = telco.lines == 2
-    telco[multiple_lines].phone = 2
+    telco.loc[telco.lines == 2, 'phone'] = 2
     telco.drop(columns='lines', inplace=True)
     data_dict['phone'] = {0: 'no phone', 1: 'one line', 2: 'multiple lines'}
+
+    telco['family'] = telco.partner + (2 * telco.dependents)
+    data_dict['family'] = {0: 'no partner, no dependents',
+                        1: 'partner, no dependents',
+                        2: 'no partner, dependents',
+                        3: 'partner and dependents'}
+    telco.drop(columns=['dependents', 'partner'])
 
     y = telco[['churn']]
     X = telco.drop(columns='churn')
