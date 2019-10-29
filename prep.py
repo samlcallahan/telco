@@ -48,11 +48,12 @@ def cant_float_to_zero(value):
 def prep_telco(telco_df):
     # Looked up non-floatable values in total_charges
     # After investigating those, I found they all had a tenure of 0, so I figured making total_charges = 0 made sense
-    telco.total_charges = telco.total_charges.map(cant_float_to_zero)
+    prepped = telco
+    prepped.total_charges = prepped.total_charges.map(cant_float_to_zero)
 
-    telco['total_charges'] = telco['total_charges'].astype('float')
+    prepped['total_charges'] = prepped['total_charges'].astype('float')
 
-    telco['tenure_years'] = telco['tenure'] / 12
+    prepped['tenure_years'] = prepped['tenure'] / 12
 
     data_dict = {}
     payment = {1: 'electronic check',
@@ -72,10 +73,10 @@ def prep_telco(telco_df):
     data_dict['internet'] = internet
 
     # drop these since the same data is in the respective ID columns
-    telco.drop(columns=['payment_type', 'internet_service_type', 'contract_type'], inplace=True)
+    prepped.drop(columns=['payment_type', 'internet_service_type', 'contract_type'], inplace=True)
 
     # make customer_id the index so it isn't considered as a feature
-    telco.set_index('customer_id', inplace=True)
+    prepped.set_index('customer_id', inplace=True)
 
     # rename some things to accomodate my laziness
     rename_dict = {'payment_type_id' : 'pay',
@@ -93,32 +94,32 @@ def prep_telco(telco_df):
                     'paperless_billing' : 'paperless',
                     'monthly_charges' : 'monthly',
                     'total_charges' : 'total'}
-    telco.rename(columns=rename_dict, inplace=True)
+    prepped.rename(columns=rename_dict, inplace=True)
 
     yes_no_cols = ['churn', 'partner', 'dependents', 'paperless', 'phone']
     for i in yes_no_cols:
-        telco[i] = yes_no_encoder(telco[i])
+        prepped[i] = yes_no_encoder(prepped[i])
 
     gender = {'Male' : 1, 'Female' : 0}
     data_dict['gender'] = gender
-    telco.gender = telco.gender.map(gender)
+    prepped.gender = prepped.gender.map(gender)
 
     yes_no_other_cols = ['lines', 'security', 'backup', 'protection', 'support', 'tv', 'movies']
     for i in yes_no_other_cols:
-        telco[i] = yes_no_none_encoder(telco[i])
+        prepped[i] = yes_no_none_encoder(prepped[i])
 
-    telco.loc[telco.lines == 2, 'phone'] = 2
-    telco.drop(columns='lines', inplace=True)
+    prepped.loc[prepped.lines == 2, 'phone'] = 2
+    prepped.drop(columns='lines', inplace=True)
     data_dict['phone'] = {0: 'no phone', 1: 'one line', 2: 'multiple lines'}
 
-    telco['family'] = telco.partner + (2 * telco.dependents)
+    prepped['family'] = prepped.partner + (2 * prepped.dependents)
     data_dict['family'] = {0: 'no partner, no dependents',
                         1: 'partner, no dependents',
                         2: 'no partner, dependents',
                         3: 'partner and dependents'}
-    telco.drop(columns=['dependents', 'partner'])
+    prepped.drop(columns=['dependents', 'partner'])
 
-    y = telco[['churn']]
-    X = telco.drop(columns='churn')
+    y = prepped[['churn']]
+    X = prepped.drop(columns='churn')
     X_train, x_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=seed)
     return X_train, x_test, y_train, y_test, data_dict
