@@ -9,8 +9,8 @@ from sklearn.feature_selection import f_regression, SelectKBest, RFE
 import matplotlib.pyplot as plt
 from pydataset import data
 import warnings
+from sklearn.metrics import classification_report
 import split_scale as ss
-import wrangle
 warnings.filterwarnings('ignore')
 
 def select_kbest_freg_unscaled(X_train, y_train, k):
@@ -46,25 +46,23 @@ def lasso_cv_coef(X_train, y_train):
     p = sns.barplot(x=X_train.columns, y=reg.coef_)
     return coef, p
 
-def optimal_feature_n(X_train, y_train):
+def optimal_feature_n(X_train, y_train, model):
     n_attributes = X_train.shape[1]
     high_score=0
     number_of_features=0           
-    
     for n in range(n_attributes):
-        model = LinearRegression()
         rfe = RFE(model, n + 1)
         X_train_rfe = rfe.fit_transform(X_train, y_train)
         model.fit(X_train_rfe, y_train)
-        score = model.score(X_train_rfe, y_train)
+        y_pred = model.predict(X_train_rfe)
+        score = classification_report(y_train, y_pred, output_dict=True)['1']['recall']
         if(score > high_score):
             high_score = score
             number_of_features = n + 1
     return number_of_features
 
-def top_n_features(X_train, y_train, n):
+def top_n_features(X_train, y_train, n, model):
     cols = X_train.columns
-    model = LinearRegression()
     rfe = RFE(model, n)
     X_rfe = rfe.fit_transform(X_train,y_train) 
     model.fit(X_rfe,y_train)

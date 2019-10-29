@@ -67,9 +67,9 @@ def prep_telco(telco_df):
                 3: 'biyearly'}
     data_dict['contract'] = contract
 
-    internet = {1: 'dsl',
-                2: 'fiber',
-                3: 'none'}
+    internet = {0: 'none',
+                1: 'fiber',
+                2: 'dsl'}
     data_dict['internet'] = internet
 
     # drop these since the same data is in the respective ID columns
@@ -95,6 +95,8 @@ def prep_telco(telco_df):
                     'monthly_charges' : 'monthly',
                     'total_charges' : 'total'}
     prepped.rename(columns=rename_dict, inplace=True)
+
+    prepped.internet = prepped.internet.map({1:1, 2:2, 3:0})
 
     yes_no_cols = ['churn', 'partner', 'dependents', 'paperless', 'phone']
     for i in yes_no_cols:
