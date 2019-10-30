@@ -9,3 +9,5 @@ Please use these variable names: user, host, password, seed.
 After that, all you have to do is run "python predict.py" in your terminal. 
 
 A csv named "results.csv" will be created in your working directory.
+
+PRESENTATION: https://docs.google.com/presentation/d/1zjqkX0dU_yGzIhNpIgsvHg_jXGnLRoX9RR0yn6yyB9o/edit?usp=sharing
