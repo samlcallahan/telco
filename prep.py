@@ -45,7 +45,7 @@ def cant_float_to_zero(value):
     else:
         return 0
 
-def prep_telco(telco_df):
+def prep_telco(telco_df, split=True):
     # Looked up non-floatable values in total_charges
     # After investigating those, I found they all had a tenure of 0, so I figured making total_charges = 0 made sense
     prepped = telco
@@ -124,4 +124,7 @@ def prep_telco(telco_df):
     y = prepped[['churn']]
     X = prepped.drop(columns='churn')
     X_train, x_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=seed)
-    return X_train, x_test, y_train, y_test, data_dict
+    if split:
+        return X_train, x_test, y_train, y_test, data_dict
+    else:
+        return prepped

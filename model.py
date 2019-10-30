@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from features import optimal_feature_n, top_n_features
 import warnings
+from k_nearest_prep import telco as knn_df
 from env import seed
 warnings.filterwarnings("ignore")
 
