@@ -48,7 +48,8 @@ def cant_float_to_zero(value):
 def prep_telco(telco_df, split=True):
     # Looked up non-floatable values in total_charges
     # After investigating those, I found they all had a tenure of 0, so I figured making total_charges = 0 made sense
-    prepped = telco
+    prepped = telco_df
+    
     prepped.total_charges = prepped.total_charges.map(cant_float_to_zero)
 
     prepped['total_charges'] = prepped['total_charges'].astype('float')
@@ -68,8 +69,8 @@ def prep_telco(telco_df, split=True):
     data_dict['contract'] = contract
 
     internet = {0: 'none',
-                1: 'fiber',
-                2: 'dsl'}
+                1: 'dsl',
+                2: 'fiber'}
     data_dict['internet'] = internet
 
     # drop these since the same data is in the respective ID columns
