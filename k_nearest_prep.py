@@ -10,10 +10,20 @@ knn_df = acquire.get_telco()
 knn_df = prep.prep_telco(knn_df, False)
 
 knn_df.drop(columns=['family', 'tenure_years'], inplace=True)
-# MAKE EVERY VARIABLE BETWEEN ONE AND ZERO
+
+# MAKE EVERY VARIABLE BETWEEN ONE AND ZERO FOR USE IN KNN CLASSIFICATION
+
+# to_drop are variables that we will encode into various 0 or 1 columns, like if we used a OneHotEncoder
+# We will then drop them after we have the encoded columns
 to_drop = ['pay', 'internet', 'contract', 'phone']
+
+# to_map are features we're changing from having possible values of [0,1,2] to possible values of [0,1]
+# I made the original 0s and 1s become 0s because in all of those cases they don't have the service we're talking about
+# Basically these variables are representing service or not service instead of no internet, internet but no service, and internet+service
+# This is because the internet information is already contained in other variables
 to_map = ['security', 'backup', 'protection', 'support', 'tv', 'movies']
 
+# Here we encode our to_drop variables as previously described
 knn_df['e_check'] = (knn_df['pay'] == 1).astype(int)
 knn_df['mail_check'] = (knn_df['pay'] == 2).astype(int)
 knn_df['bank'] = (knn_df['pay'] == 3).astype(int)
@@ -31,12 +41,13 @@ knn_df['biyearly'] = (knn_df['contract'] == 3).astype(int)
 knn_df['yearly'] = (knn_df['contract'] == 1).astype(int)
 knn_df['month_to_month'] = (knn_df['contract'] == 2).astype(int)
 
+# Here we map the to_map variables
 for feature in to_map:
     knn_df[feature] = knn_df[feature].map({0:0, 1:0, 2:1})
 
-knn_df.drop(columns=(to_drop + to_map), inplace=True)
+knn_df.drop(columns=to_drop, inplace=True)
 
-# scale tenure, monthly, total
+# features that must be scaled for k-nearest neighbors. These are numerical values.
 to_scale = ['tenure', 'monthly', 'total']
 
 for feature in to_scale:

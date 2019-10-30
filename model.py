@@ -20,17 +20,20 @@ telco = acquire.get_telco()
 
 X_train, X_test, y_train, y_test, data_dict = prep.prep_telco(telco)
 
+# Makes a decision tree model of the data
 first_model = DecisionTreeClassifier(criterion='gini', min_samples_leaf=3, max_depth=8, random_state=seed)
 first_model.fit(X_train, y_train)
 y_pred = first_model.predict(X_train)
-accuracy = first_model.score(X_train, y_train) # 80% on first try, 55% recall isn't very good though
+accuracy = first_model.score(X_train, y_train) 
 recall = classification_report(y_train, y_pred, output_dict=True)['1']['recall']
 
+# Makes a random forest model of the data
 rf_model = RandomForestClassifier(n_estimators=100, max_depth=8, min_samples_leaf=3, random_state=seed)
 rf_model.fit(X_train, y_train)
 y_pred = rf_model.predict(X_train)
 accuracy = rf_model.score(X_train, y_train)
 
+# Makes a k-nearest neighbor model of the data
 X = knn_df.drop(columns='churn')
 y = knn_df['churn']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=seed)
